@@ -36,13 +36,17 @@ function deposit(){
     ]).then((answer) => {
         const amount = answer['amount']
 
-        // console.log(amount)
 
         if(!fs.existsSync('saldo.json')) {
-            fs.writeFileSync('saldo.json', `{"balance": ${amount}}`,
+            const data = [{
+                "balance": 0,
+                "date": Date.now()
+            }]
+            fs.writeFileSync('saldo.json', JSON.stringify(data, null, 2),
                 function(err) {
                     console.log(err)
                 }
+
             )
         }
 
@@ -57,13 +61,19 @@ function addAmount(amount) {
         return deposit()
     }
 
-    const saldoJson = fs.readFileSync('saldo.json', {
-        encoding: 'utf8',
-        flag: 'r',
-    })
+    const saldoJson = fs.readFileSync('saldo.json', 'utf8')
     const saldoData = JSON.parse(saldoJson)
-
-    console.log(saldoData)
-    console.log(saldoData.balance)
-    return
+    const saldoAdd = parseFloat(saldoData[saldoData.length-1].balance) + parseFloat(amount)
+    
+    const json = {
+        "balance": saldoAdd,
+        "date": Date.now()
+    }
+    
+    saldoData.push(json)
+    
+    fs.writeFileSync('saldo.json', JSON.stringify(saldoData, null, 2), 
+        function(err){console.log(err)} 
+    )
+    // console.log(chalk.green(`Saldo atual: ${saldoAdd}`))
 }
